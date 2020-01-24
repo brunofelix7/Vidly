@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 using Vidly.Database;
@@ -27,11 +26,44 @@ namespace Vidly.Controllers {
         }
 
         [HttpGet]
+        [Route("new")]
+        public ActionResult New() {
+            var membershipTypes = _context.MembershipTypes.ToList();
+            var viewModel = new CustomerFormViewModel {
+                MembershipTypes = membershipTypes,
+                Customer = new Customer()
+            };
+            return View("Form", viewModel);
+        }
+
+        [HttpGet]
+        [Route("edit/{id}")]
+        public ActionResult Edit(int id) {
+            var customer = _context.Customers.SingleOrDefault(x => x.Id == id);
+            if (customer == null) {
+                return HttpNotFound();
+            }
+            var viewModel = new CustomerFormViewModel {
+                MembershipTypes = _context.MembershipTypes.ToList(),
+                Customer = customer
+            };
+            return View("Form", viewModel);
+        }
+
+        [HttpPost]
+        [Route("create")]
+        public ActionResult Create(Customer customer) {
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
+            return RedirectToAction("Index", "Customers");
+        }
+
+        [HttpGet]
         [Route("details/{id}")]
         public ActionResult Details(int id) {
-            var customer = GetData().Customers.Find(x => x.Id == id);
+            var customer = GetData().Customers.SingleOrDefault(x => x.Id == id);
             if (customer == null) {
-                customer = new Customer { Name = "Ops!" };
+                return HttpNotFound();
             }
             return View(customer);
         }
