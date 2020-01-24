@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Data.Entity;
+using System.Linq;
 using System.Web.Mvc;
-using Vidly.Models;
+using Vidly.Database;
 using Vidly.ViewModels;
 
 namespace Vidly.Controllers {
@@ -8,9 +9,23 @@ namespace Vidly.Controllers {
     [RoutePrefix("movies")]
     public class MoviesController : Controller {
 
+        private MyDbContext _context;
+
+        public MoviesController() {
+            _context = new MyDbContext();
+        }
+
+        protected override void Dispose(bool disposing) {
+            _context.Dispose();
+        }
+
         [HttpGet]
         public ActionResult Index(int? pageIndex, string sortBy) {
             return View(GetData());
+            //return Content("Hello");
+            //return HttpNotFound();
+            //return new EmptyResult();
+            //return RedirectToAction("Index", "Home", new { page = 1 });
             /*if (!pageIndex.HasValue) {
                 pageIndex = 1;
             }
@@ -20,23 +35,11 @@ namespace Vidly.Controllers {
             return Content(string.Format("pageIndex={0}&sortBy={1}", pageIndex, sortBy));*/
         }
 
-        [Route("random")]
+        [Route("details/{id}")]
         [HttpGet]
-        public ActionResult Random() {
-            var movie = new Movie("Shrek!");
-            var customers = new List<Customer> { 
-                new Customer { Name = "Customer 1" },
-                new Customer { Name = "Customer 2" }
-            };
-            var viewModel = new RandomMovieViewModel {
-                Movies = new List<Movie> { movie },
-                Customers = customers
-            };
-            return View(viewModel);
-            //return Content("Hello");
-            //return HttpNotFound();
-            //return new EmptyResult();
-            //return RedirectToAction("Index", "Home", new { page = 1 });
+        public ActionResult Details(int id) {
+            var movie = _context.Movies.Include(x => x.Genre).First(x => x.Id == id);
+            return View(movie);
         }
 
         [Route("edit/{id}")]
@@ -52,10 +55,8 @@ namespace Vidly.Controllers {
         }
 
         private RandomMovieViewModel GetData() {
-            var movies = new List<Movie> {
-                new Movie { Id = 1, Name = "Shrek" },
-                new Movie { Id = 2, Name = "Star Wars" }
-            }; var viewModel = new RandomMovieViewModel {
+            var movies = _context.Movies.Include(x => x.Genre).ToList();
+            var viewModel = new RandomMovieViewModel {
                 Movies = movies,
                 Customers = null
             };
