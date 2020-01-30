@@ -6,7 +6,9 @@
 }
 
 <h2>Movies</h2>
+<a href="@Url.Action("New", "Movies")" class="btn btn-primary">New</a>
 
+<br />
 <br />
 
 @if (Model.Movies.Count > 0) {
@@ -15,15 +17,26 @@
             <tr>
                 <th scope="col">Movie</th>
                 <th scope="col">Genre</th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
 
             @foreach (var movie in Model.Movies) {
-                <tr>
-                    <td scope="row">@Html.ActionLink(movie.Name, "Details", "Movies", new { id = movie.Id}, null)</td>
-                    <td scope="row">@movie.Genre.Name</td>
-                </tr>
+            <tr>
+                <td scope="row">@Html.ActionLink(movie.Name, "Details", "Movies", new { id = movie.Id }, null)</td>
+                <td scope="row">@movie.Genre.Name</td>
+                <td scope="row">
+                    <div class="btn-group btn-group-toggle">
+                        <a href="@Url.Action("Edit", "Movies", new { id = movie.Id }, null)" class="btn btn-outline-primary btn-sm">
+                            <i class="fa fa-edit" style="font-size: 12px;"></i>
+                        </a>
+                        <a href="@Url.Action("Delete", "Movies", new { id = movie.Id }, null)" class="btn btn-outline-danger btn-sm">
+                            <i class="fa fa-trash" style="font-size: 12px;"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
             }
 
         </tbody>

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Web.Mvc;
 using Vidly.Database;
+using Vidly.Models;
 using Vidly.ViewModels;
 
 namespace Vidly.Controllers {
@@ -20,7 +21,7 @@ namespace Vidly.Controllers {
         }
 
         [HttpGet]
-        public ActionResult Index(int? pageIndex, string sortBy) {
+        public ActionResult Index() {
             return View(GetData());
             //return Content("Hello");
             //return HttpNotFound();
@@ -35,17 +36,53 @@ namespace Vidly.Controllers {
             return Content(string.Format("pageIndex={0}&sortBy={1}", pageIndex, sortBy));*/
         }
 
+        [HttpGet]
+        [Route("new")]
+        public ActionResult New() {
+            var genres = _context.Genres.ToList();
+            var viewModel = new MovieFormViewModel {
+                Movie = new Movie(),
+                Genres = genres
+            };
+            return View("Form", viewModel);
+        }
+
+        [HttpGet]
+        [Route("edit/{id}")]
+        public ActionResult Edit(int id) {
+            var movie = _context.Movies.SingleOrDefault(x => x.Id == id);
+            var genres = _context.Genres.ToList();
+            if (movie == null) {
+                return HttpNotFound();
+            }
+            var viewModel = new MovieFormViewModel {
+                Movie = movie,
+                Genres = genres
+            };
+            return View("Form", viewModel);
+        }
+
+        [HttpPost]
+        [Route("save")]
+        public ActionResult Save(Movie movie) {
+            if (movie.Id == 0) {
+                _context.Movies.Add(movie);
+            } else {
+                var movieInDb = _context.Movies.Single(c => c.Id == movie.Id);
+                movieInDb.Name = movie.Name;
+                movieInDb.GenreId = movie.GenreId;
+                movieInDb.ReleaseDate = movie.ReleaseDate;
+                movieInDb.NumberInStock = movie.NumberInStock;
+            }
+            _context.SaveChanges();
+            return RedirectToAction("Index", "Movies");
+        }
+
         [Route("details/{id}")]
         [HttpGet]
         public ActionResult Details(int id) {
             var movie = _context.Movies.Include(x => x.Genre).First(x => x.Id == id);
             return View(movie);
-        }
-
-        [Route("edit/{id}")]
-        [HttpGet]
-        public ActionResult Edit(int id) {
-            return Content("Id= " + id);
         }
 
         [HttpGet]
