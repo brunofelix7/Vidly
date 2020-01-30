@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 using Vidly.Database;
@@ -65,6 +66,7 @@ namespace Vidly.Controllers {
         [HttpPost]
         [Route("save")]
         public ActionResult Save(Movie movie) {
+            movie.DateAdded = DateTime.Now;
             if (movie.Id == 0) {
                 _context.Movies.Add(movie);
             } else {
