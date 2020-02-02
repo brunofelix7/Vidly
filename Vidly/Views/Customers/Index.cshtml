@@ -12,7 +12,7 @@
 <br />
 
 @if (Model.Customers.Count > 0) {
-    <table class="table table-hover">
+    <table id="customers" class="table table-hover">
         <thead>
             <tr>
                 <th scope="col">Customer</th>
@@ -31,9 +31,9 @@
                             <a href="@Url.Action("Edit", "Customers", new { id = customer.Id }, null)" class="btn btn-outline-primary btn-sm">
                                 <i class="fa fa-edit" style="font-size: 12px;"></i>
                             </a>
-                            <a href="@Url.Action("Delete", "Customers", new { id = customer.Id }, null)" class="btn btn-outline-danger btn-sm">
+                            <button data-customer-id="@customer.Id" class="btn btn-outline-danger btn-sm js-delete">
                                 <i class="fa fa-trash" style="font-size: 12px;"></i>
-                            </a>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -43,4 +43,49 @@
     </table>
 } else {
     <p>We don't have any customers yet.</p>
+}
+
+@section scripts {
+
+    <script>
+        $(document).ready(function () {
+
+            //Não funciona com o lumem
+            //$("#customers").DataTable();
+
+            $("#customers .js-delete").on("click", function () {
+                var button = $(this);
+                if (confirm("Do you really want to delete?")) {
+                    $.ajax({
+                        url: "/api/customers/" + button.attr("data-customer-id"),
+                        method: "DELETE",
+                        success: function () {
+                            button.parents("tr").remove();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+    <!-- Não funciona com o lumem -->
+    <!--<script>
+        $(document).ready(function () {
+            $("#customers").on("click", ".js-delete", function () {
+                var button = $(this);
+                bootbox.confirm("Do you really want to delete?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "/api/customers/" + button.attr("data-customer-id"),
+                            method: "DELETE",
+                            success: function () {
+                                button.parents("tr").remove();
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>-->
+
 }
