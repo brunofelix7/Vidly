@@ -52,6 +52,7 @@ namespace Vidly.Controllers {
 
         [HttpPost]
         [Route("save")]
+        [ValidateAntiForgeryToken]
         public ActionResult Save(Customer customer) {
             if (!ModelState.IsValid) {
                 var viewModel = new CustomerFormViewModel {
